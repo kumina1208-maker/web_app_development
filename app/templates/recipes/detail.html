@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}{{ recipe.title }} - 食譜收藏系統{% endblock %}
+
+{% block content %}
+<article class="recipe-detail">
+    <header class="recipe-header">
+        <h1>{{ recipe.title }}</h1>
+        {% if recipe.source_url %}
+            <a href="{{ recipe.source_url }}" target="_blank" class="source-link">📎 原始來源</a>
+        {% endif %}
+        <div class="recipe-meta">
+            <span>👥 {{ recipe.servings }} 人份</span>
+            {% if recipe.prep_time_min %}
+                <span>🔪 備料 {{ recipe.prep_time_min }} 分鐘</span>
+            {% endif %}
+            {% if recipe.cook_time_min %}
+                <span>⏱️ 烹飪 {{ recipe.cook_time_min }} 分鐘</span>
+            {% endif %}
+        </div>
+        {% if recipe.tags %}
+            <div class="recipe-tags">
+                {% for tag in recipe.tags.split(',') %}
+                    <span class="tag">{{ tag.strip() }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if recipe.description %}
+            <p class="recipe-description">{{ recipe.description }}</p>
+        {% endif %}
+    </header>
+
+    <!-- 份量轉換 -->
+    <section class="scale-section">
+        <h2>份量換算</h2>
+        <form method="POST" action="{{ url_for('cook.scale_recipe', id=recipe.id) }}" class="scale-form">
+            <label for="target_servings">調整為</label>
+            <input type="number" id="target_servings" name="target_servings"
+                   min="1" value="{{ target_servings or recipe.servings }}">
+            <span>人份</span>
+            <button type="submit">換算</button>
+        </form>
+    </section>
+
+    <!-- 食材清單 -->
+    <section class="ingredients-section">
+        <h2>食材清單</h2>
+        <table class="ingredients-table">
+            <thead>
+                <tr>
+                    <th>食材</th>
+                    <th>用量</th>
+                    <th>單位</th>
+                    <th>備註</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ing in ingredients %}
+                <tr>
+                    <td>{{ ing.name }}</td>
+                    <td>{{ ing.quantity }}</td>
+                    <td>{{ ing.unit }}</td>
+                    <td>{{ ing.notes or '' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- 烹飪步驟 -->
+    <section class="steps-section">
+        <h2>烹飪步驟</h2>
+        <ol class="steps-list">
+            {% for step in steps %}
+            <li>
+                <p>{{ step.instruction }}</p>
+                {% if step.timer_seconds %}
+                    <span class="step-timer">⏲️ {{ step.timer_seconds }} 秒</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ol>
+    </section>
+
+    <!-- 操作按鈕 -->
+    <div class="recipe-actions">
+        <a href="{{ url_for('cook.cook_mode', id=recipe.id) }}" class="btn btn-primary">🍳 開始下廚</a>
+        <a href="{{ url_for('recipe.edit_recipe_page', id=recipe.id) }}" class="btn btn-secondary">✏️ 編輯</a>
+        <form method="POST" action="{{ url_for('recipe.delete_recipe', id=recipe.id) }}" class="inline-form"
+              onsubmit="return confirm('確定要刪除這道食譜嗎？')">
+            <button type="submit" class="btn btn-danger">🗑️ 刪除</button>
+        </form>
+    </div>
+</article>
+{% endblock %}

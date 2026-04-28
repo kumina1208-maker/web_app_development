@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}新增食譜 - 食譜收藏系統{% endblock %}
+
+{% block content %}
+<section class="recipe-form">
+    <h1>新增食譜</h1>
+
+    <!-- URL 抓取區塊 -->
+    <div class="scrape-section">
+        <h3>從網址匯入食譜</h3>
+        <form method="POST" action="{{ url_for('recipe.scrape_recipe') }}" class="scrape-form">
+            <input type="url" name="url" placeholder="貼上食譜網址（如愛料理）...">
+            <button type="submit">抓取</button>
+        </form>
+    </div>
+
+    <hr>
+
+    <!-- 手動新增表單 -->
+    <h3>手動新增</h3>
+    <form method="POST" action="{{ url_for('recipe.new_recipe_submit') }}">
+        <!-- 基本資訊 -->
+        <div class="form-group">
+            <label for="title">食譜名稱 *</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+            <label for="description">簡介</label>
+            <textarea id="description" name="description" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="servings">份數 *</label>
+                <input type="number" id="servings" name="servings" min="1" value="2" required>
+            </div>
+            <div class="form-group">
+                <label for="prep_time_min">備料時間（分鐘）</label>
+                <input type="number" id="prep_time_min" name="prep_time_min" min="0">
+            </div>
+            <div class="form-group">
+                <label for="cook_time_min">烹飪時間（分鐘）</label>
+                <input type="number" id="cook_time_min" name="cook_time_min" min="0">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="tags">標籤（以逗號分隔）</label>
+            <input type="text" id="tags" name="tags" placeholder="例如：台式, 快炒, 省時">
+        </div>
+
+        <!-- 食材列表（動態新增） -->
+        <fieldset class="dynamic-fields" id="ingredients-section">
+            <legend>食材清單</legend>
+            <div class="ingredient-row">
+                <input type="text" name="ingredient_name[]" placeholder="食材名稱" required>
+                <input type="number" name="ingredient_quantity[]" placeholder="數量" step="0.1" required>
+                <input type="text" name="ingredient_unit[]" placeholder="單位" required>
+                <input type="text" name="ingredient_notes[]" placeholder="備註">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>
+            </div>
+            <button type="button" class="btn-add" onclick="addIngredientRow()">+ 新增食材</button>
+        </fieldset>
+
+        <!-- 烹飪步驟（動態新增） -->
+        <fieldset class="dynamic-fields" id="steps-section">
+            <legend>烹飪步驟</legend>
+            <div class="step-row">
+                <span class="step-number">1.</span>
+                <textarea name="step_instruction[]" placeholder="步驟說明" required></textarea>
+                <input type="number" name="step_timer[]" placeholder="計時（秒）" min="0">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>
+            </div>
+            <button type="button" class="btn-add" onclick="addStepRow()">+ 新增步驟</button>
+        </fieldset>
+
+        <button type="submit" class="btn btn-primary">儲存食譜</button>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/recipe_form.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}編輯食譜 - {{ recipe.title }}{% endblock %}
+
+{% block content %}
+<section class="recipe-form">
+    <h1>編輯食譜</h1>
+    <form method="POST" action="{{ url_for('recipe.edit_recipe_submit', id=recipe.id) }}">
+        <!-- 基本資訊 -->
+        <div class="form-group">
+            <label for="title">食譜名稱 *</label>
+            <input type="text" id="title" name="title" value="{{ recipe.title }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">簡介</label>
+            <textarea id="description" name="description" rows="3">{{ recipe.description or '' }}</textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="servings">份數 *</label>
+                <input type="number" id="servings" name="servings" min="1"
+                       value="{{ recipe.servings }}" required>
+            </div>
+            <div class="form-group">
+                <label for="prep_time_min">備料時間（分鐘）</label>
+                <input type="number" id="prep_time_min" name="prep_time_min" min="0"
+                       value="{{ recipe.prep_time_min or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="cook_time_min">烹飪時間（分鐘）</label>
+                <input type="number" id="cook_time_min" name="cook_time_min" min="0"
+                       value="{{ recipe.cook_time_min or '' }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="tags">標籤（以逗號分隔）</label>
+            <input type="text" id="tags" name="tags" value="{{ recipe.tags or '' }}">
+        </div>
+
+        <!-- 食材列表（預填現有資料） -->
+        <fieldset class="dynamic-fields" id="ingredients-section">
+            <legend>食材清單</legend>
+            {% for ing in ingredients %}
+            <div class="ingredient-row">
+                <input type="text" name="ingredient_name[]" value="{{ ing.name }}" required>
+                <input type="number" name="ingredient_quantity[]" value="{{ ing.quantity }}" step="0.1" required>
+                <input type="text" name="ingredient_unit[]" value="{{ ing.unit }}" required>
+                <input type="text" name="ingredient_notes[]" value="{{ ing.notes or '' }}">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>
+            </div>
+            {% endfor %}
+            <button type="button" class="btn-add" onclick="addIngredientRow()">+ 新增食材</button>
+        </fieldset>
+
+        <!-- 烹飪步驟（預填現有資料） -->
+        <fieldset class="dynamic-fields" id="steps-section">
+            <legend>烹飪步驟</legend>
+            {% for step in steps %}
+            <div class="step-row">
+                <span class="step-number">{{ loop.index }}.</span>
+                <textarea name="step_instruction[]" required>{{ step.instruction }}</textarea>
+                <input type="number" name="step_timer[]" value="{{ step.timer_seconds or '' }}" min="0">
+                <button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>
+            </div>
+            {% endfor %}
+            <button type="button" class="btn-add" onclick="addStepRow()">+ 新增步驟</button>
+        </fieldset>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">儲存變更</button>
+            <a href="{{ url_for('recipe.recipe_detail', id=recipe.id) }}" class="btn btn-secondary">取消</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/recipe_form.js') }}"></script>
+{% endblock %}
