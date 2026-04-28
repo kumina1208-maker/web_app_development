@@ -1,0 +1,23 @@
+/* 下廚模式 — 專用樣式 */
+/* TODO: 步驟四將完整實作 */
+
+.cook-mode {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.cook-step {
+    display: none;
+}
+
+.cook-step.active {
+    display: block;
+}
+
+.step-instruction-large {
+    font-size: 1.8rem;
+    line-height: 1.5;
+    padding: 40px 20px;
+}

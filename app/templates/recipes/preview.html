@@ -3,47 +3,47 @@
 {% block title %}預覽抓取結果 - 食譜收藏系統{% endblock %}
 
 {% block content %}
-<section class="preview-section">
-    <h1>抓取結果預覽</h1>
-    <p class="preview-source">來源：<a href="{{ scraped_data.source_url }}" target="_blank">{{ scraped_data.source_url }}</a></p>
+<h1 class="mb-4">📎 抓取結果預覽</h1>
+<p class="text-muted">來源：<a href="{{ scraped_data.source_url }}" target="_blank">{{ scraped_data.source_url }}</a></p>
 
-    <!-- 食譜基本資訊 -->
-    <div class="preview-info">
-        <h2>{{ scraped_data.title }}</h2>
+<div class="card mb-4">
+    <div class="card-header">基本資訊</div>
+    <div class="card-body">
+        <h3>{{ scraped_data.title }}</h3>
         {% if scraped_data.description %}
-            <p>{{ scraped_data.description }}</p>
+            <p class="text-muted">{{ scraped_data.description }}</p>
         {% endif %}
-        <p>👥 {{ scraped_data.servings }} 人份</p>
+        <span class="badge bg-primary">👥 {{ scraped_data.servings }} 人份</span>
     </div>
+</div>
 
-    <!-- 食材預覽 -->
-    <div class="preview-ingredients">
-        <h3>食材清單</h3>
-        <ul>
-            {% for ing in scraped_data.ingredients %}
-                <li>{{ ing.name }} — {{ ing.quantity }} {{ ing.unit }}
-                    {% if ing.notes %}（{{ ing.notes }}）{% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
+<div class="card mb-4">
+    <div class="card-header">🥬 食材清單</div>
+    <ul class="list-group list-group-flush">
+        {% for ing in scraped_data.ingredients %}
+        <li class="list-group-item">
+            {{ ing.name }} — {{ ing.quantity }} {{ ing.unit }}
+            {% if ing.notes %}<small class="text-muted">（{{ ing.notes }}）</small>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
 
-    <!-- 步驟預覽 -->
-    <div class="preview-steps">
-        <h3>烹飪步驟</h3>
+<div class="card mb-4">
+    <div class="card-header">📋 烹飪步驟</div>
+    <div class="card-body">
         <ol>
             {% for step in scraped_data.steps %}
-                <li>{{ step.instruction }}</li>
+                <li class="mb-2">{{ step.instruction }}</li>
             {% endfor %}
         </ol>
     </div>
+</div>
 
-    <!-- 確認或取消 -->
-    <div class="preview-actions">
-        <form method="POST" action="{{ url_for('recipe.scrape_confirm') }}">
-            <button type="submit" class="btn btn-primary">✅ 確認儲存</button>
-        </form>
-        <a href="{{ url_for('recipe.new_recipe_page') }}" class="btn btn-secondary">❌ 取消</a>
-    </div>
-</section>
+<div class="d-flex gap-2">
+    <form method="POST" action="{{ url_for('recipe.scrape_confirm') }}">
+        <button type="submit" class="btn btn-success btn-lg">✅ 確認儲存</button>
+    </form>
+    <a href="{{ url_for('recipe.new_recipe_page') }}" class="btn btn-outline-secondary btn-lg">❌ 取消</a>
+</div>
 {% endblock %}

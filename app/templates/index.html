@@ -3,54 +3,95 @@
 {% block title %}首頁 - 食譜收藏系統{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <h1>我的食譜收藏</h1>
+<!-- 標題區 -->
+<div class="text-center mb-4">
+    <h1 class="display-5 fw-bold">🍽️ 我的食譜收藏</h1>
+    <p class="text-muted">收藏、整理、下廚，一站搞定</p>
+</div>
 
-    <!-- 搜尋列 -->
-    <form method="GET" action="{{ url_for('main.index') }}" class="search-form">
-        <input type="text" name="q" placeholder="搜尋食譜名稱..." value="{{ request.args.get('q', '') }}">
-        <button type="submit">搜尋</button>
-    </form>
-</section>
+<!-- 搜尋列 -->
+<div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+        <form method="GET" action="{{ url_for('main.index') }}">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="搜尋食譜名稱..."
+                       value="{{ q or '' }}">
+                <button type="submit" class="btn btn-outline-primary">🔍 搜尋</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- 食譜卡片列表 -->
-<section class="recipe-grid">
+{% if recipes %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
     {% for recipe in recipes %}
-        <div class="recipe-card">
+    <div class="col">
+        <div class="card h-100 shadow-sm">
             {% if recipe.image_url %}
-                <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}">
+                <img src="{{ recipe.image_url }}" class="card-img-top" alt="{{ recipe.title }}" style="height: 200px; object-fit: cover;">
             {% else %}
-                <div class="recipe-card-placeholder">🍽️</div>
-            {% endif %}
-            <div class="recipe-card-body">
-                <h3><a href="{{ url_for('recipe.recipe_detail', id=recipe.id) }}">{{ recipe.title }}</a></h3>
-                <p>{{ recipe.description or '' }}</p>
-                <div class="recipe-card-meta">
-                    <span>👥 {{ recipe.servings }} 人份</span>
-                    {% if recipe.cook_time_min %}
-                        <span>⏱️ {{ recipe.cook_time_min }} 分鐘</span>
-                    {% endif %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <span style="font-size: 4rem;">🍳</span>
                 </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{{ url_for('recipe.recipe_detail', id=recipe.id) }}" class="text-decoration-none text-dark">
+                        {{ recipe.title }}
+                    </a>
+                </h5>
+                {% if recipe.description %}
+                    <p class="card-text text-muted small">{{ recipe.description[:80] }}{% if recipe.description|length > 80 %}...{% endif %}</p>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-white border-top-0">
+                <small class="text-muted">
+                    👥 {{ recipe.servings }} 人份
+                    {% if recipe.cook_time_min %}
+                        &nbsp;·&nbsp;⏱️ {{ recipe.cook_time_min }} 分鐘
+                    {% endif %}
+                </small>
             </div>
         </div>
-    {% else %}
-        <p class="empty-state">尚無食譜，快來新增第一道料理吧！</p>
+    </div>
     {% endfor %}
-</section>
+</div>
 
-<!-- 採買清單：多選食譜 -->
-{% if recipes %}
-<section class="shopping-section">
-    <h2>產生採買清單</h2>
-    <form method="POST" action="{{ url_for('recipe.create_shopping_list') }}">
-        {% for recipe in recipes %}
-            <label>
-                <input type="checkbox" name="recipe_ids" value="{{ recipe.id }}">
-                {{ recipe.title }}（{{ recipe.servings }} 人份）
-            </label>
-        {% endfor %}
-        <button type="submit">產生採買清單</button>
-    </form>
-</section>
+<!-- 採買清單區 -->
+<div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">🛒 產生採買清單</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('recipe.create_shopping_list') }}">
+            <div class="row row-cols-1 row-cols-md-2 g-2 mb-3">
+                {% for recipe in recipes %}
+                <div class="col">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="recipe_ids" value="{{ recipe.id }}" id="shop-{{ recipe.id }}">
+                        <label class="form-check-label" for="shop-{{ recipe.id }}">
+                            {{ recipe.title }}（{{ recipe.servings }} 人份）
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-success">產生採買清單</button>
+        </form>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-5">
+    <p class="display-1">📖</p>
+    <h3 class="text-muted">尚無食譜</h3>
+    <p class="text-muted">快來新增第一道料理吧！</p>
+    {% if session.get('user_id') %}
+        <a href="{{ url_for('recipe.new_recipe_page') }}" class="btn btn-primary btn-lg mt-2">➕ 新增食譜</a>
+    {% else %}
+        <a href="{{ url_for('main.register_page') }}" class="btn btn-primary btn-lg mt-2">立即註冊</a>
+    {% endif %}
+</div>
 {% endif %}
 {% endblock %}

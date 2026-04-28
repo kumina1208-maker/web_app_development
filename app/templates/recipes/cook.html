@@ -3,47 +3,52 @@
 {% block title %}下廚模式 - {{ recipe.title }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/cook.css') }}">
+<style>
+    .cook-mode { min-height: 70vh; }
+    .cook-step { display: none; }
+    .cook-step.active { display: block; }
+    .step-instruction-large { font-size: 1.8rem; line-height: 1.8; }
+    .progress { height: 8px; }
+</style>
 {% endblock %}
 
 {% block content %}
-<section class="cook-mode" id="cook-mode">
-    <header class="cook-header">
-        <h1>{{ recipe.title }}</h1>
-        <div class="cook-progress">
-            <span id="current-step">1</span> / <span id="total-steps">{{ steps | length }}</span>
-        </div>
-    </header>
+<div class="cook-mode text-center py-4" id="cook-mode">
+    <h2 class="text-muted mb-2">{{ recipe.title }}</h2>
+    <p class="fs-5">
+        步驟 <strong id="current-step">1</strong> / <span id="total-steps">{{ steps | length }}</span>
+    </p>
 
-    <div class="progress-bar">
-        <div class="progress-fill" id="progress-fill"></div>
+    <!-- 進度條 -->
+    <div class="progress mb-5">
+        <div class="progress-bar bg-success" id="progress-fill" role="progressbar" style="width: 0%"></div>
     </div>
 
-    <div class="cook-steps">
-        {% for step in steps %}
-        <div class="cook-step {% if loop.first %}active{% endif %}" data-step="{{ loop.index }}">
-            <div class="step-number-large">步驟 {{ loop.index }}</div>
-            <p class="step-instruction-large">{{ step.instruction }}</p>
-            {% if step.timer_seconds %}
-            <div class="step-timer-section">
-                <button class="btn-timer" onclick="startTimer({{ step.timer_seconds }})">
-                    ⏲️ 計時 {{ step.timer_seconds }} 秒
-                </button>
-                <div class="timer-display" id="timer-display" style="display: none;">
-                    <span id="timer-countdown"></span>
-                </div>
+    <!-- 步驟內容 -->
+    {% for step in steps %}
+    <div class="cook-step {% if loop.first %}active{% endif %}" data-step="{{ loop.index }}">
+        <span class="badge bg-dark fs-5 mb-4">步驟 {{ loop.index }}</span>
+        <p class="step-instruction-large px-3">{{ step.instruction }}</p>
+        {% if step.timer_seconds %}
+        <div class="mt-4">
+            <button class="btn btn-outline-warning btn-lg" onclick="startTimer({{ step.timer_seconds }})">
+                ⏲️ 開始計時 {{ step.timer_seconds }} 秒
+            </button>
+            <div class="mt-3" id="timer-display" style="display: none;">
+                <span class="display-3 fw-bold" id="timer-countdown"></span>
             </div>
-            {% endif %}
         </div>
-        {% endfor %}
+        {% endif %}
     </div>
+    {% endfor %}
 
-    <div class="cook-controls">
-        <button class="btn btn-secondary" id="btn-prev" onclick="prevStep()" disabled>⬅️ 上一步</button>
-        <button class="btn btn-primary" id="btn-next" onclick="nextStep()">下一步 ➡️</button>
-        <a href="{{ url_for('recipe.recipe_detail', id=recipe.id) }}" class="btn btn-danger" id="btn-finish" style="display: none;">✅ 完成烹飪</a>
+    <!-- 控制按鈕 -->
+    <div class="d-flex justify-content-center gap-3 mt-5">
+        <button class="btn btn-outline-secondary btn-lg" id="btn-prev" onclick="prevStep()" disabled>⬅️ 上一步</button>
+        <button class="btn btn-primary btn-lg" id="btn-next" onclick="nextStep()">下一步 ➡️</button>
+        <a href="{{ url_for('recipe.recipe_detail', id=recipe.id) }}" class="btn btn-success btn-lg" id="btn-finish" style="display: none;">✅ 完成烹飪</a>
     </div>
-</section>
+</div>
 {% endblock %}
 
 {% block extra_js %}
